@@ -15,7 +15,7 @@ The main features of this package are :
 Supported transit objects (and TODO list) :
 
 - [X] Stops
-- [ ] Stop Areas
+- [X] Stop Areas
 
 ...
 
