@@ -16,11 +16,18 @@ Supported transit objects (and TODO list) :
 
 - [X] Stops
 - [ ] Stop Areas
-- ...
+
+...
 
 ## Usage
 
-Check examples in the [examples](examples) folder.
+You can get retrieve transit objects through :
+
+- [X] A channel for concurrent processing using `parser.Extract(...)`
+- [X] A slice of TransitData objects using `parser.TransitData()`
+- [ ] A structured transit feed using `parser.TransitFeed()`
+
+Check out examples in the [examples](examples) folder.
 
 ## Project Status
 
