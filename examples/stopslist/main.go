@@ -10,7 +10,7 @@ import (
 
 func main() {
 	start := time.Now()
-	parser, err := osmtransit.NewParser("/home/adelcasse/Downloads/france-latest.osm.pbf")
+	parser, err := osmtransit.NewParser("/home/adelcasse/Downloads/france-latest.osm.pbf", osmtransit.NoStopArea)
 	//parser, err := osmtransit.NewParser("/home/adelcasse/Downloads/provence-alpes-cote-d-azur-latest.osm.pbf")
 	if err != nil {
 		panic(err)

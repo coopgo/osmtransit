@@ -12,11 +12,16 @@ import (
 type Parser struct {
 	File *os.File
 
-	Stops bool
+	Stops     bool
+	StopAreas bool
 }
 
 func NoStop(p *Parser) {
 	p.Stops = false
+}
+
+func NoStopArea(p *Parser) {
+	p.StopAreas = false
 }
 
 // ParserOption is a function that sets a certain config on a Parser.
@@ -29,20 +34,28 @@ type ParserOption func(*Parser)
 //
 // Use self referential functions design to configure.
 // See more: https://commandcenter.blogspot.com/2014/01/self-referential-functions-and-design.html
-func NewParser(file string) (*Parser, error) {
+func NewParser(file string, opts ...ParserOption) (*Parser, error) {
 	f, err := os.Open(file)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Parser{
-		File:  f,
-		Stops: true,
-	}, nil
+	parser := Parser{
+		File:      f,
+		Stops:     true,
+		StopAreas: true,
+	}
+
+	for _, opt := range opts {
+		opt(&parser)
+	}
+
+	return &parser, nil
 }
 
+// scan scans the OSM pbf file for each elements
 func (p *Parser) scan(objects chan osm.Object) {
-	scanner := osmpbf.New(context.Background(), p.File, 3)
+	scanner := osmpbf.New(context.Background(), p.File, 5)
 	defer scanner.Close()
 
 	for scanner.Scan() {
@@ -58,12 +71,16 @@ func (p *Parser) scan(objects chan osm.Object) {
 	close(objects)
 }
 
+// extractor selects OSM objects
 func (p *Parser) extractor(transit chan TransitData, objects chan osm.Object) {
+
 	for o := range objects {
 		if o.ObjectID().Type() == osm.TypeNode {
 			obj := o.(*osm.Node)
-			if isStop(obj) {
+			if p.Stops && isStop(obj) {
 				transit <- StopFromNode(obj)
+			} else if p.StopAreas && isStopArea(obj) {
+				transit <- StopAreaFromNode(obj)
 			}
 		}
 	}
